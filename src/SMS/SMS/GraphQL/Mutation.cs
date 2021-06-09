@@ -20,5 +20,10 @@ namespace SMS.GraphQL
         {
             return await _studentService.AddStudent(student);
         }
+
+        public async Task<Student> EditStudent(int id, Student student)
+        {
+            return await _studentService.EditStudent(id, student);
+        }
     }
 }

@@ -21,6 +21,7 @@ namespace SMS.GraphQL
             return _studentService.GetAll();
         }
 
+        // Doesn't work
         public async Task<Student> GetStudent(int id)
         {
             return await _studentService.GetStudent(id);

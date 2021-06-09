@@ -11,5 +11,6 @@ namespace SMS.Services
         IQueryable<Student> GetAll();
         Task<Student> AddStudent(Student student);
         Task<Student> GetStudent(int id);
+        Task<Student> EditStudent(int id, Student student);
     }
 }

@@ -1,4 +1,5 @@
-﻿using SMS.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using SMS.Database;
 using SMS.Model;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,43 @@ namespace SMS.Services
         public async Task<Student> GetStudent(int id)
         {
             var student = await _dbContext.Students.FindAsync(id);
+
             return student;
         }
+
+
+        public async Task<Student> EditStudent(int id, Student student)
+        {
+            if (id != student.Id)
+            {
+                return null;
+            }
+
+            _dbContext.Entry(student).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!StudentExists(id))
+                {
+                    return null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return student;
+        }
+
+        private bool StudentExists(int id)
+        {
+            return _dbContext.Students.Any(e => e.Id == id);
+        }
+
     }
 }
