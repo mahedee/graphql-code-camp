@@ -30,7 +30,9 @@ namespace GraphQL
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=conferences.db"));
 
             // Setup GraphQL server and register schema for query type
-            services.AddGraphQLServer().AddQueryType<Query>();
+            services.AddGraphQLServer()
+                .AddQueryType<Query>()
+                .AddMutationType<Mutation>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
