@@ -1,6 +1,4 @@
-using HotChocolate;
-using HotChocolate.AspNetCore;
-using HotChocolate.AspNetCore.Playground;
+using GraphQL.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using SMS.Database;
-using SMS.GraphQL;
-using SMS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SMS
+namespace GraphQL
 {
     public class Startup
     {
@@ -32,21 +27,15 @@ namespace SMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<SMSContext>(context => { context.UseInMemoryDatabase("SMSDB"); });
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=conferences.db"));
 
-            services.AddScoped<Query>();
-            services.AddScoped<IStudentService, StudentService>();
-
-            services.AddGraphQL(c => SchemaBuilder.New().AddServices(c).AddType<GraphQLTypes>()
-                                        .AddQueryType<Query>()
-                                        .AddMutationType<Mutation>()
-                                        .Create());
+            // Setup GraphQL server and register schema for query type
+            services.AddGraphQLServer().AddQueryType<Query>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SMS", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GraphQL", Version = "v1" });
             });
         }
 
@@ -56,18 +45,9 @@ namespace SMS
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-                app.UsePlayground(new PlaygroundOptions
-                {
-                    QueryPath = "/api",
-                    Path = "/playground"
-                });
-
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SMS v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GraphQL v1"));
             }
-
-            app.UseGraphQL("/api");
 
             app.UseRouting();
 
@@ -75,7 +55,9 @@ namespace SMS
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                // Configure GraphQL middleware
+                endpoints.MapGraphQL();
+                //endpoints.MapControllers();
             });
         }
     }
