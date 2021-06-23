@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 namespace GraphQL
 {
     public record AddSpeakerInput(string Name,
-        string Bio,
-        string WebSite);
+        string? Bio,
+        string? WebSite);
 }
